@@ -1,0 +1,106 @@
+# Versão do Docker Compose que estamos usando.
+version: '3.8'
+
+# Define a rede customizada para que os contêineres possam se comunicar usando seus nomes de serviço.
+networks:
+  ecommerce-net:
+    driver: bridge
+
+# Definição dos serviços (contêineres) que compõem nossa aplicação.
+services:
+  # Zookeeper é uma dependência do Kafka. É um serviço centralizado para manter
+  # informações de configuração, nomeação e fornecer sincronização distribuída.
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0 # Imagem oficial do Zookeeper da Confluent.
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181" # Mapeia a porta do contêiner para a porta do host.
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - ecommerce-net
+
+  # Apache Kafka é nossa plataforma de streaming de eventos (mensageria).
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0 # Imagem oficial do Kafka da Confluent.
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper # Kafka só iniciará após o Zookeeper estar pronto.
+    ports:
+      - "9092:9092"   # Porta para comunicação interna da rede Docker (entre serviços).
+      - "29092:29092" # Porta para comunicação externa (do nosso PC para o Kafka).
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" # Permite a criação automática de tópicos.
+    networks:
+      - ecommerce-net
+
+  # Banco de Dados PostgreSQL para o serviço de Clientes.
+  # Padrão: Database per Service.
+  db_cliente:
+    image: postgres:15-alpine # Imagem oficial do PostgreSQL.
+    container_name: db_cliente
+    ports:
+      - "5432:5432" # Mapeia a porta para acesso externo (ex: DBeaver).
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=clientedb
+    volumes:
+      - pg_cliente_data:/var/lib/postgresql/data # Volume para persistir os dados.
+    networks:
+      - ecommerce-net
+
+  # Banco de Dados PostgreSQL para o serviço de Produtos.
+  db_produto:
+    image: postgres:15-alpine
+    container_name: db_produto
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=produtodb
+    volumes:
+      - pg_produto_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-net
+
+  # Banco de Dados PostgreSQL para o serviço de Pedidos.
+  db_pedido:
+    image: postgres:15-alpine
+    container_name: db_pedido
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=pedidodb
+    volumes:
+      - pg_pedido_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-net
+
+  # Redis é nosso banco de dados em memória, usado para cache.
+  redis:
+    image: redis:7-alpine # Imagem oficial do Redis.
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce-net
+
+# Define os volumes nomeados para persistir os dados dos bancos de dados
+# mesmo que os contêineres sejam recriados.
+volumes:
+  pg_cliente_data:
+  pg_produto_data:
+  pg_pedido_data:
