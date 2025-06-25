@@ -1,68 +1,61 @@
-# Versão do Docker Compose que estamos usando.
 version: '3.8'
 
-# Define a rede customizada para que os contêineres possam se comunicar usando seus nomes de serviço.
 networks:
   ecommerce-net:
     driver: bridge
 
-# Definição dos serviços (contêineres) que compõem nossa aplicação.
 services:
-  # Zookeeper é uma dependência do Kafka. É um serviço centralizado para manter
-  # informações de configuração, nomeação e fornecer sincronização distribuída.
+  # INFRAESTRUTURA
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0 # Imagem oficial do Zookeeper da Confluent.
+    image: confluentinc/cp-zookeeper:7.3.0
     hostname: zookeeper
     container_name: zookeeper
+    networks:
+      - ecommerce-net
     ports:
-      - "2181:2181" # Mapeia a porta do contêiner para a porta do host.
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - ecommerce-net
 
-  # Apache Kafka é nossa plataforma de streaming de eventos (mensageria).
   kafka:
-    image: confluentinc/cp-kafka:7.3.0 # Imagem oficial do Kafka da Confluent.
+    image: confluentinc/cp-kafka:7.3.0
     hostname: kafka
     container_name: kafka
     depends_on:
-      - zookeeper # Kafka só iniciará após o Zookeeper estar pronto.
+      - zookeeper
+    networks:
+      - ecommerce-net
     ports:
-      - "9092:9092"   # Porta para comunicação interna da rede Docker (entre serviços).
-      - "29092:29092" # Porta para comunicação externa (do nosso PC para o Kafka).
+      - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" # Permite a criação automática de tópicos.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  db_cliente:
+    image: postgres:15-alpine
+    container_name: db_cliente
     networks:
       - ecommerce-net
-
-  # Banco de Dados PostgreSQL para o serviço de Clientes.
-  # Padrão: Database per Service.
-  db_cliente:
-    image: postgres:15-alpine # Imagem oficial do PostgreSQL.
-    container_name: db_cliente
     ports:
-      - "5432:5432" # Mapeia a porta para acesso externo (ex: DBeaver).
+      - "5432:5432"
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=clientedb
     volumes:
-      - pg_cliente_data:/var/lib/postgresql/data # Volume para persistir os dados.
-    networks:
-      - ecommerce-net
+      - pg_cliente_data:/var/lib/postgresql/data
 
-  # Banco de Dados PostgreSQL para o serviço de Produtos.
   db_produto:
     image: postgres:15-alpine
     container_name: db_produto
+    networks:
+      - ecommerce-net
     ports:
       - "5433:5432"
     environment:
@@ -71,13 +64,12 @@ services:
       - POSTGRES_DB=produtodb
     volumes:
       - pg_produto_data:/var/lib/postgresql/data
-    networks:
-      - ecommerce-net
 
-  # Banco de Dados PostgreSQL para o serviço de Pedidos.
   db_pedido:
     image: postgres:15-alpine
     container_name: db_pedido
+    networks:
+      - ecommerce-net
     ports:
       - "5434:5432"
     environment:
@@ -86,20 +78,74 @@ services:
       - POSTGRES_DB=pedidodb
     volumes:
       - pg_pedido_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
     networks:
       - ecommerce-net
-
-  # Redis é nosso banco de dados em memória, usado para cache.
-  redis:
-    image: redis:7-alpine # Imagem oficial do Redis.
-    container_name: redis
     ports:
       - "6379:6379"
+
+  # APLICAÇÕES
+  cliente-ms:
+    build:
+      context: .
+      dockerfile: cliente-ms/Dockerfile
+    container_name: cliente-ms
+    hostname: cliente-ms
+    depends_on:
+      - db_cliente
+      - kafka
     networks:
       - ecommerce-net
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_cliente:5432/clientedb
+      - SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS=kafka:9092
 
-# Define os volumes nomeados para persistir os dados dos bancos de dados
-# mesmo que os contêineres sejam recriados.
+  produto-ms:
+    build:
+      context: .
+      dockerfile: produto-ms/Dockerfile
+    container_name: produto-ms
+    hostname: produto-ms
+    depends_on:
+      - db_produto
+      - redis
+    networks:
+      - ecommerce-net
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_produto:5432/produtodb
+      - SPRING_DATA_REDIS_HOST=redis
+
+  pedido-ms:
+    build:
+      context: .
+      dockerfile: pedido-ms/Dockerfile
+    container_name: pedido-ms
+    hostname: pedido-ms
+    depends_on:
+      - db_pedido
+      - kafka
+      - cliente-ms
+      - produto-ms
+    networks:
+      - ecommerce-net
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_pedido:5432/pedidodb
+      - SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS=kafka:9092
+      # --- PONTO CRÍTICO DE VERIFICAÇÃO ---
+      # Garante que o pedido-ms se comunique com os outros serviços usando
+      # seus nomes de host definidos na rede Docker.
+      - APPLICATION_CLIENT_URL=http://cliente-ms:8081
+      - APPLICATION_PRODUTO_URL=http://produto-ms:8082
+
 volumes:
   pg_cliente_data:
   pg_produto_data:

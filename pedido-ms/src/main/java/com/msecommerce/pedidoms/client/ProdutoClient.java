@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.UUID;
 
-@FeignClient(name = "produto-ms")
+@FeignClient(name = "produto-ms-client", url = "${application.produto.url}")
 public interface ProdutoClient {
 
     @GetMapping("/produtos/{id}")

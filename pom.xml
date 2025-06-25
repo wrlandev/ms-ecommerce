@@ -25,12 +25,12 @@
         <module>cliente-ms</module>
         <module>produto-ms</module>
         <module>pedido-ms</module>
-    </modules>
+</modules>
 
-    <name>ms-ecommerce</name>
-    <description>Projeto de Portfólio de Microsserviços para E-commerce</description>
+<name>ms-ecommerce</name>
+<description>Projeto de Portfólio de Microsserviços para E-commerce</description>
 
-    <!-- Propriedades globais que podem ser usadas em todo o projeto. -->
+<!-- Propriedades globais que podem ser usadas em todo o projeto. -->
     <!-- Centralizar versões aqui é uma excelente prática. -->
     <properties>
         <java.version>21</java.version>

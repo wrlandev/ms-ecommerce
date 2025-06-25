@@ -1,37 +1,41 @@
-# --- Estágio 1: Build ---
-# Usa uma imagem do Maven com JDK 21 para compilar a aplicação.
+# --- ESTÁGIO 1: O Construtor (Builder) ---
+# Usamos uma imagem oficial do Maven com JDK 21 para compilar o código.
+# O contexto do build (definido no docker-compose.yml como '.') é a raiz do projeto 'ms-ecommerce'.
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 
 # Define o diretório de trabalho dentro do contêiner.
 WORKDIR /app
 
-# Copia o pom.xml pai e o pom.xml do módulo.
-COPY ../pom.xml .
+# Copia o pom.xml PAI (da raiz do projeto) para a raiz do WORKDIR no contêiner.
+COPY pom.xml .
+
+# Copia o pom.xml do MÓDULO cliente-ms para uma subpasta.
 COPY cliente-ms/pom.xml ./cliente-ms/
 
-# Baixa todas as dependências do projeto.
-# Fazer isso em um passo separado aproveita o cache de camadas do Docker.
-# Se o pom.xml não mudar, esta camada não será reexecutada.
+# Baixa as dependências. Usamos '-f' para apontar para o pom.xml do MÓDULO.
+# O Maven usará o 'relativePath' para encontrar o pom.xml pai que copiamos para a raiz.
 RUN mvn -B -f cliente-ms/pom.xml dependency:go-offline
 
-# Copia o código fonte do módulo.
-COPY cliente-ms/src/ ./cliente-ms/src/
+# Copia todo o código-fonte do módulo cliente-ms para sua respectiva subpasta no contêiner.
+COPY cliente-ms/src ./cliente-ms/src
 
-# Compila o projeto e gera o JAR, pulando os testes.
+# Compila e empacota o projeto do módulo, gerando o .jar em /app/cliente-ms/target/
 RUN mvn -B -f cliente-ms/pom.xml package -DskipTests
 
-# --- Estágio 2: Runtime ---
-# Usa uma imagem JRE (Java Runtime Environment) magra, pois não precisamos mais do JDK/Maven.
+
+# --- ESTÁGIO 2: A Imagem Final (Runtime) ---
+# Usamos uma imagem mínima, contendo apenas o Java Runtime Environment (JRE).
 FROM eclipse-temurin:21-jre-alpine
 
-# Define o diretório de trabalho.
+# Define o diretório de trabalho para o contêiner final.
 WORKDIR /app
 
-# Copia o JAR gerado do estágio de build para o estágio de runtime.
+# Copia APENAS o .jar gerado do estágio "builder" para o contêiner final.
+# Damos a ele um nome simples, "app.jar", para facilitar a execução.
 COPY --from=builder /app/cliente-ms/target/*.jar app.jar
 
-# Expõe a porta que a aplicação vai usar.
+# Documenta a porta interna que a aplicação usa.
 EXPOSE 8081
 
-# Comando para executar a aplicação quando o contêiner iniciar.
-ENTRYPOINT ["java","-jar","app.jar"]
+# Define o comando para executar a aplicação quando o contêiner iniciar.
+ENTRYPOINT ["java", "-jar", "app.jar"]

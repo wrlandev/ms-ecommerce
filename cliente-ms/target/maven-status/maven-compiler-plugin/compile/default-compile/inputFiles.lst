@@ -1,0 +1,12 @@
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\service\ClienteService.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\config\SpringDocConfig.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\dto\ClienteResponseDTO.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\controller\ClienteController.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\dto\ClienteRequestDTO.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\ClienteMsApplication.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\exception\RecursoNaoEncontradoException.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\exception\RestExceptionHandler.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\service\KafkaConsumerService.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\entity\Cliente.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\mapper\ClienteMapper.java
+C:\Projetos\ms-ecommerce\cliente-ms\src\main\java\com\msecommerce\clientems\repository\ClienteRepository.java

@@ -33,7 +33,7 @@ public class ClienteController {
     @GetMapping
     public ResponseEntity<Page<ClienteResponseDTO>> listarClientes(
             @Parameter(
-                    description = "Parâmetros de paginação e ordenação. Para ordenar, use o formato 'campo,direcao' (ex: 'nome,asc' ou 'email,desc').",
+                    description = "No Parâmetro (Sort) adicione nome ou email",
                     schema = @Schema(implementation = Pageable.class)
             )
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {

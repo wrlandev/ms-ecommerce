@@ -1,0 +1,13 @@
+com\msecommerce\clientems\ClienteMsApplication.class
+com\msecommerce\clientems\mapper\ClienteMapperImpl.class
+com\msecommerce\clientems\service\ClienteService.class
+com\msecommerce\clientems\mapper\ClienteMapper.class
+com\msecommerce\clientems\controller\ClienteController.class
+com\msecommerce\clientems\dto\ClienteRequestDTO.class
+com\msecommerce\clientems\dto\ClienteResponseDTO.class
+com\msecommerce\clientems\entity\Cliente.class
+com\msecommerce\clientems\exception\RecursoNaoEncontradoException.class
+com\msecommerce\clientems\config\SpringDocConfig.class
+com\msecommerce\clientems\repository\ClienteRepository.class
+com\msecommerce\clientems\exception\RestExceptionHandler.class
+com\msecommerce\clientems\service\KafkaConsumerService.class

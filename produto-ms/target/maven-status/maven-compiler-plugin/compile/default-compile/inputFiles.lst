@@ -1,0 +1,12 @@
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\entity\Produto.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\ProdutoMsApplication.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\exception\RecursoNaoEncontradoException.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\mapper\ProdutoMapper.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\dto\AtualizarEstoqueRequestDTO.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\controller\ProdutoController.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\dto\ProdutoRequestDTO.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\repository\ProdutoRepository.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\service\ProdutoService.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\exception\EstoqueInsuficienteException.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\dto\ProdutoResponseDTO.java
+C:\Projetos\ms-ecommerce\produto-ms\src\main\java\com\msecommerce\produtoms\exception\RestExceptionHandler.java
