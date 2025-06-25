@@ -1,0 +1,84 @@
+# ===================================================================
+# Arquivos de Log, Temporários e de Build
+# ===================================================================
+
+# Arquivos de log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diretório de build do Maven
+# Este é o diretório mais importante a ser ignorado. Ele contém os .class compilados,
+# os .jar empacotados e outros artefatos de build que não devem ser versionados.
+# A barra no final garante que apenas diretórios com este nome sejam ignorados.
+**/target/
+
+# Arquivos gerados por patches e diffs
+*.patch
+*.diff
+
+# Arquivos de pacotes (gerados por algumas ferramentas)
+*.jar
+*.war
+*.ear
+
+# Arquivos de texto gerados
+*.out
+
+
+# ===================================================================
+# Arquivos de IDEs e Ferramentas de Desenvolvimento
+# ===================================================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+.nb-gradle/
+
+# Mac
+.DS_Store
+
+
+# ===================================================================
+# Arquivos do Sistema Operacional e Outros
+# ===================================================================
+
+# Arquivos temporários do Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Arquivos de configuração de run do IntelliJ que podem conter informações locais
+.idea/runConfigurations/
+
+
+# ===================================================================
+# Arquivos de Dependências e Módulos Locais
+# ===================================================================
+
+# Diretório de módulos do Node.js (caso use para frontend ou ferramentas)
+node_modules/
+.pnp
+.pnp.js
+
+# Cache de ferramentas
+.npm/
+.node_gyp/
+.yarn/
