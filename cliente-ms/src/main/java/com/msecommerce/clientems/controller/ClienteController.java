@@ -3,6 +3,8 @@ package com.msecommerce.clientems.controller;
 import com.msecommerce.clientems.dto.ClienteRequestDTO;
 import com.msecommerce.clientems.dto.ClienteResponseDTO;
 import com.msecommerce.clientems.service.ClienteService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,10 @@ public class ClienteController {
 
     @GetMapping
     public ResponseEntity<Page<ClienteResponseDTO>> listarClientes(
+            @Parameter(
+                    description = "Parâmetros de paginação e ordenação. Para ordenar, use o formato 'campo,direcao' (ex: 'nome,asc' ou 'email,desc').",
+                    schema = @Schema(implementation = Pageable.class)
+            )
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
         Page<ClienteResponseDTO> clientes = clienteService.listarClientes(pageable);
         return ResponseEntity.ok(clientes);
